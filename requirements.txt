@@ -5,5 +5,4 @@ pandas
 mediapipe
 numpy
 joblib
-scikit-learn
 libgl1-mesa-glx
