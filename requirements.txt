@@ -5,3 +5,4 @@ pandas
 mediapipe
 numpy
 joblib
+scikit-learn
