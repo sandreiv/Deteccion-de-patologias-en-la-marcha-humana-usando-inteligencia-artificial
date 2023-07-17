@@ -1,8 +1,8 @@
 streamlit
 tensorflow
-opencv-python
+opencv-python-headless
 pandas
 mediapipe
 numpy
 joblib
-libgl1-mesa-glx
+scikit-learn
