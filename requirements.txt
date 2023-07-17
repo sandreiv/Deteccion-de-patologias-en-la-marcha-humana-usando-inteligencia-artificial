@@ -4,5 +4,4 @@ opencv-python
 pandas
 mediapipe
 numpy
-sklearn
 joblib
