@@ -6,4 +6,4 @@ mediapipe
 numpy
 joblib
 scikit-learn
-
+pickle
