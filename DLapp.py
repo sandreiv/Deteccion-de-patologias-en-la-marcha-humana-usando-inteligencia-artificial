@@ -311,7 +311,7 @@ elif app_mode == 'Ejecutar en video':
         st.text('Video Procesado')
 
         cap.release()
-        out. release()
+        #out.release()
     
     if model_app == 'Modelo de angulos':
 
@@ -660,4 +660,4 @@ elif app_mode == 'Ejecutar en video':
         st.text('Video Procesado')
 
         cap.release()
-        out. release()
+        #out.release()
