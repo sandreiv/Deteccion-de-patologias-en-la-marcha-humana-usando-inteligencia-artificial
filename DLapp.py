@@ -33,7 +33,7 @@ mp_pose = mp.solutions.pose
 DEMO_VIDEO = '28_cut.mp4'
 FRAME_WINDOW = st.image([])
 
-st.title('Aplicativo web para la predicción de patologías en la marcha humana')
+#st.title('Aplicativo web para la predicción de patologías en la marcha humana')
 
 st.markdown(
     """
@@ -79,7 +79,23 @@ app_mode = st.sidebar.selectbox('Seleccione el modo de la App',
 ['Acerca de la App', 'Ejecutar en video'])
 
 if app_mode == 'Acerca de la App':
-    st.markdown('Aplicación sobre la detección de diferentes enfermedades de la marcha humana')
+    st.title('Aplicativo web para la predicción de patologías en la marcha humana')
+    st.header('Pasos de la utilización del aplicativo web')
+    st.markdown('1. Ingresa "ejecutar en video" desde la barra de parámetros.')
+    st.markdown('2. Por defecto el modelo presentado es el de "coordenadas", en la barra desplegable escoger el que se quiera probar.')
+    st.markdown('3. Seleccionar el modo de uso, ya sea con la webcam o subiendo un video.')
+    st.markdown('Si se seleccionó subir video, puedes subir uno de hasta 200MB.')
+    st.markdown('En ambos modos puedes modificar los parámetros de seguimiento y detección')
+
+    st.markdown('---')
+    
+    st.header("Acerca del autor")
+    st.write("Nombre: Sebastian Andreiv Jaimes Gómez")
+    st.write("Estudiante de décimo semestre de la Universidad de Pamplona")
+    st.markdown('---')
+    st.header("Tutor")
+    st.write("Msc. Luis Enrique Mendoza")
+    
 
     st.markdown(
         """
@@ -96,7 +112,10 @@ if app_mode == 'Acerca de la App':
         """,
         unsafe_allow_html=True
     )
-
+    img = Image.open('logoupa.png')
+    st.markdown('---')
+    st.image(img,width=300, caption='Logo Universidad de Pamplona')
+    
 elif app_mode == 'Ejecutar en video':
 
     model_app = st.sidebar.selectbox('Seleccione el modelo de la app',
@@ -136,14 +155,14 @@ elif app_mode == 'Ejecutar en video':
     
         if not video_file_buffer:
             if use_webcam:
-                cap = cv2.VideoCapture(0)
+                cap = cv2.VideoCapture(1)
             else:
                 cap = cv2.VideoCapture(DEMO_VIDEO)
                 tfflie.name = DEMO_VIDEO
         
         else:
-            tfflie.write(video_file_buffer.read())
-            cap = cv2.VideoCapture(tfflie.name)
+           tfflie.write(video_file_buffer.read())
+           cap = cv2.VideoCapture(tfflie.name)
 
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -161,9 +180,6 @@ elif app_mode == 'Ejecutar en video':
             st.markdown("**Movimiento**")
             kpi1_text = st.markdown("0")
 
-        with kpi3:
-            st.markdown("**Ancho de la imagen**")
-            kpi3_text = st.markdown("0")
 
         st.markdown("<hr/>", unsafe_allow_html=True)
 
@@ -302,7 +318,6 @@ elif app_mode == 'Ejecutar en video':
 
 
                 kpi1_text.write(f"<h1 style='text-align: center; color: red;'>{movimiento}</h1>", unsafe_allow_html=True)
-                kpi3_text.write(f"<h1 style='text-align: center; color: red;'>{width}</h1>", unsafe_allow_html=True)
 
                 frame = cv2.resize(frame,(0,0),fx = 0.8 , fy = 0.8)
                 frame = image_resize(image = frame, width = 640)
@@ -347,7 +362,7 @@ elif app_mode == 'Ejecutar en video':
     
         if not video_file_buffer:
             if use_webcam:
-                cap = cv2.VideoCapture(0)
+                cap = cv2.VideoCapture(1)
             else:
                 cap = cv2.VideoCapture(DEMO_VIDEO)
                 tfflie.name = DEMO_VIDEO
@@ -372,9 +387,7 @@ elif app_mode == 'Ejecutar en video':
             st.markdown("**Movimiento**")
             kpi1_text = st.markdown("0")
 
-        with kpi3:
-            st.markdown("**Ancho de la imagen**")
-            kpi3_text = st.markdown("0")
+        
 
         st.markdown("<hr/>", unsafe_allow_html=True)
 
@@ -389,6 +402,24 @@ elif app_mode == 'Ejecutar en video':
             #global angulo
             angulo = degrees(acos((a**2 + c**2 - b**2)/(2*a*c)))
             return angulo
+            
+        def elemento_mas_comun(lista):
+                    contador = {}
+                    for elemento in lista:
+                        if elemento in contador:
+                            contador[elemento] += 1
+                        else:
+                            contador[elemento] = 1
+                    
+                    elemento_mas_repetido = None
+                    max_repeticiones = 0
+                    
+                    for elemento, repeticiones in contador.items():
+                        if repeticiones > max_repeticiones:
+                            max_repeticiones = repeticiones
+                            elemento_mas_repetido = elemento
+                    
+                    return elemento_mas_repetido, max_repeticiones
 
         sentence = []
         threshold = 0.4
@@ -608,48 +639,31 @@ elif app_mode == 'Ejecutar en video':
                 scaler = StandardScaler()
                 df_sin_nans = df_angulos_normal.fillna(0)
                 angulos_fitted = scaler.fit(df_sin_nans)
-                angulos_escalados = scaler.transform(df_sin_nans)
-                new_predictions = model.predict(angulos_escalados)
+                #angulos_escalados = scaler.transform(df_sin_nans)
+                #new_predictions = model.predict(angulos_escalados)
 
-                for i in new_predictions:
-                    if i == 0:
-                        movimiento = "normal"
-                    elif i == 1:
-                        movimiento = "hemiplejia"
-                    elif i == 2:
-                        movimiento = "estepaje"
-                    elif i == 3:
-                        movimiento = "balanceante"
-                    elif i == 4: 
-                        movimiento = "parkinson"
+                new_data_scaled = scaler.transform(df_angulos_normal)
+                new_predictions = model.predict(new_data_scaled)
 
-                def contar_datos_mas_repetidos(lista):
-                    contador = {}
-                    
-                    # Contar la frecuencia de cada dato en la lista
-                    for dato in lista:
-                        if dato in contador:
-                            contador[dato] += 1
-                        else:
-                            contador[dato] = 1
-                    
-                    max_repeticiones = 0
-                    dato_mas_repetido = None
-                    
-                    # Encontrar el dato más repetido
-                    for dato, repeticiones in contador.items():
-                        if repeticiones > max_repeticiones:
-                            max_repeticiones = repeticiones
-                            dato_mas_repetido = dato
-                    
-                    return dato_mas_repetido
-
-                dato_mas_repetido = contar_datos_mas_repetidos(new_predictions)
-
-                kpi1_text.write(f"<h1 style='text-align: center; color: red;'>{dato_mas_repetido}</h1>", unsafe_allow_html=True)
-                kpi3_text.write(f"<h1 style='text-align: center; color: red;'>{width}</h1>", unsafe_allow_html=True)
+                #print("Nuevas predicciones:", new_predictions)
+                
                 
 
+                elemento, repeticiones = elemento_mas_comun(new_predictions)
+                
+                if elemento == 0:
+                    movimiento = "Marcha normal"
+                elif elemento == 1:
+                    movimiento = "Marcha hemiplejia"
+                elif elemento == 2:
+                    movimiento = "Marcha estepaje"
+                elif elemento == 3:
+                    movimiento = "Marcha balanceante"
+                elif elemento == 4: 
+                    movimiento = "Marcha parkinson"
+                
+                kpi1_text.write(f"<h1 style='text-align: center; color: red;'>{movimiento}</h1>", unsafe_allow_html=True)
+                
                 frame = cv2.resize(frame,(0,0),fx = 0.8 , fy = 0.8)
                 frame = image_resize(image = frame, width = 640)
                 FRAME_WINDOW.image(frame,channels = 'BGR')
@@ -660,4 +674,4 @@ elif app_mode == 'Ejecutar en video':
         st.text('Video Procesado')
 
         cap.release()
-        #out.release()
+        out.release()
